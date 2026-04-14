@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>JCV Academy — Assistente de Vendas</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --gold: #C8A84B;
+    --gold-light: #E8C96A;
+    --gold-dark: #9A7A2E;
+    --black: #0a0a0a;
+    --surface: #111111;
+    --surface2: #1a1a1a;
+    --surface3: #222222;
+    --text: #f0ede6;
+    --text-muted: #888;
+    --border: rgba(200,168,75,0.2);
+  }
+
+  body {
+    background: var(--black);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  /* Background pattern */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(circle at 20% 20%, rgba(200,168,75,0.06) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(200,168,75,0.04) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  /* Logo / Header */
+  .brand {
+    text-align: center;
+    margin-bottom: 20px;
+    animation: fadeDown 0.6s ease both;
+  }
+
+  .brand-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+
+  .brand-icon {
+    width: 42px;
+    height: 42px;
+    background: var(--gold);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: #000;
+    letter-spacing: -0.5px;
+  }
+
+  .brand-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.5px;
+  }
+
+  .brand-name span {
+    color: var(--gold);
+  }
+
+  .brand-tagline {
+    font-size: 12px;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+  }
+
+  /* Chat window */
+  .chat-window {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 560px;
+    animation: fadeUp 0.6s ease 0.1s both;
+    box-shadow: 0 0 60px rgba(200,168,75,0.08);
+  }
+
+  /* Chat header */
+  .chat-header {
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+
+  .avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 11px;
+    color: #000;
+    flex-shrink: 0;
+    letter-spacing: -0.5px;
+  }
+
+  .header-info { flex: 1; }
+  .header-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .header-status {
+    font-size: 11px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 2px;
+  }
+
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #1D9E75;
+    flex-shrink: 0;
+  }
+
+  .sheets-badge {
+    font-size: 10px;
+    background: rgba(200,168,75,0.12);
+    color: var(--gold);
+    border: 1px solid rgba(200,168,75,0.3);
+    padding: 3px 8px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+
+  /* Messages */
+  #msgs {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    scroll-behavior: smooth;
+  }
+
+  #msgs::-webkit-scrollbar { width: 4px; }
+  #msgs::-webkit-scrollbar-track { background: transparent; }
+  #msgs::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 4px; }
+
+  .msg {
+    display: flex;
+    flex-direction: column;
+    max-width: 82%;
+    animation: msgIn 0.3s ease both;
+  }
+
+  @keyframes msgIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .msg.bot { align-self: flex-start; }
+  .msg.user { align-self: flex-end; }
+
+  .bubble {
+    padding: 10px 14px;
+    font-size: 13.5px;
+    line-height: 1.55;
+  }
+
+  .msg.bot .bubble {
+    background: var(--surface2);
+    color: var(--text);
+    border-radius: 16px 16px 16px 4px;
+    border-left: 2px solid var(--gold);
+  }
+
+  .msg.user .bubble {
+    background: var(--gold);
+    color: #000;
+    border-radius: 16px 16px 4px 16px;
+    font-weight: 500;
+  }
+
+  .msg.bot .bubble a {
+    color: var(--gold);
+    text-decoration: underline;
+  }
+
+  .wa-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 10px;
+    background: #25D366;
+    color: #fff;
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+
+  .wa-btn:hover { opacity: 0.9; }
+
+  .wa-btn svg { width: 18px; height: 18px; fill: #fff; flex-shrink: 0; }
+
+  .msg-time {
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    padding: 0 4px;
+  }
+
+  .msg.user .msg-time { text-align: right; }
+
+  /* Typing */
+  .typing-wrap {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 14px;
+    background: var(--surface2);
+    border-radius: 16px 16px 16px 4px;
+    border-left: 2px solid var(--gold);
+    width: fit-content;
+  }
+
+  .dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--gold);
+    animation: blink 1.2s infinite;
+  }
+
+  .dot:nth-child(2) { animation-delay: 0.2s; }
+  .dot:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes blink {
+    0%, 80%, 100% { opacity: 0.2; }
+    40% { opacity: 1; }
+  }
+
+  /* Quick buttons */
+  #quick-wrap {
+    padding: 8px 14px 6px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+    flex-shrink: 0;
+  }
+
+  .qbtn {
+    font-size: 11.5px;
+    padding: 6px 13px;
+    border-radius: 20px;
+    border: 1px solid var(--gold-dark);
+    background: rgba(200,168,75,0.07);
+    color: var(--gold);
+    cursor: pointer;
+    white-space: nowrap;
+    font-family: 'Inter', sans-serif;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .qbtn:hover {
+    background: var(--gold);
+    color: #000;
+  }
+
+  /* Input area */
+  .input-area {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px 14px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  #dm-input {
+    flex: 1;
+    background: var(--surface2);
+    border: 1px solid var(--surface3);
+    border-radius: 22px;
+    padding: 9px 16px;
+    font-size: 13.5px;
+    color: var(--text);
+    outline: none;
+    font-family: 'Inter', sans-serif;
+    transition: border-color 0.2s;
+  }
+
+  #dm-input::placeholder { color: var(--text-muted); }
+  #dm-input:focus { border-color: var(--gold-dark); }
+
+  .send-btn {
+    width: 36px;
+    height: 36px;
+    background: var(--gold);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: opacity 0.2s, transform 0.15s;
+  }
+
+  .send-btn:hover { opacity: 0.85; transform: scale(1.05); }
+  .send-btn:active { transform: scale(0.95); }
+  .send-btn svg { width: 15px; height: 15px; fill: #000; }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    margin-top: 14px;
+    font-size: 11px;
+    color: #444;
+    animation: fadeUp 0.6s ease 0.3s both;
+  }
+
+  .footer a { color: var(--gold-dark); text-decoration: none; }
+
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Sheets status */
+  #status-bar {
+    font-size: 10px;
+    text-align: center;
+    padding: 4px;
+    color: #1D9E75;
+    background: var(--surface);
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  #status-bar.err { color: #E24B4A; }
+
+  /* Mobile */
+  @media (max-width: 480px) {
+    body { padding: 12px; justify-content: flex-start; padding-top: 24px; }
+    .chat-window { height: calc(100vh - 180px); }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="brand">
+    <div class="brand-logo">
+      <div class="brand-icon">JCV</div>
+      <div class="brand-name">JCV <span>Academy</span></div>
+    </div>
+    <div class="brand-tagline">INSTITUIÇÃO DE ENSINO DIGITAL</div>
+  </div>
+
+  <div class="chat-window">
+    <div class="chat-header">
+      <div class="avatar">JCV</div>
+      <div class="header-info">
+        <div class="header-name">Assistente de Vendas</div>
+        <div class="header-status">
+          <div class="status-dot"></div>
+          Online agora
+        </div>
+      </div>
+      <div class="sheets-badge" id="sheets-badge">● Registro ativo</div>
+    </div>
+
+    <div id="status-bar">● conversas registradas no Google Sheets</div>
+
+    <div id="msgs"></div>
+    <div id="quick-wrap"></div>
+
+    <div class="input-area">
+      <input id="dm-input" type="text" placeholder="Digite sua mensagem..." onkeydown="if(event.key==='Enter')sendMsg()" />
+      <button class="send-btn" onclick="sendMsg()">
+        <svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2L15 22 11 13 2 9l20-7z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="footer">
+    Powered by JCV Academy &nbsp;·&nbsp; <a href="https://jcvacademy.com.br" target="_blank">jcvacademy.com.br</a>
+  </div>
+</div>
+
+<script>
+const SHEETS_URL = "https://script.google.com/macros/s/AKfycbzERSc6QsNNrwMf7xzQLAK4Cq5LMB0OMJLdUamZnkhjaUuK_tV0iybIKIY8whAR-ekQ/exec";
+const SESSION_ID = "s" + Date.now().toString(36);
+
+const leadData = { perfil: '', desafio: '', extras: [] };
+
+const SYSTEM = `Você é um assistente de vendas humano e consultivo da JCV Academy.
+Seu objetivo é conduzir o lead pelo fluxo abaixo de forma natural, calorosa e nunca robótica.
+
+SOBRE A JCV ACADEMY:
+- Primeira instituição de ensino digital especializada em formar revendedores autorizados no Brasil
+- Fundada por Victor Mattos — saiu da informalidade e hoje fatura múltiplos 6 dígitos
+- Mais de 500 alunos já saíram da informalidade e construíram negócios sólidos
+- Site: jcvacademy.com.br | WhatsApp: (48) 9 2001-4985
+
+PROGRAMAS:
+1. Módulo Iniciante — estruturar o primeiro negócio autorizado do zero
+2. Formação Intensiva — mentorias ao vivo, suporte contábil/fiscal/jurídico
+3. Mentoria 1:1 com Victor Mattos — acompanhamento personalizado
+4. Branding e Posicionamento — marca que vende antes de você falar
+5. Social Media para Revendedores — converter seguidores em clientes
+6. Vendas e Scripts — fechar mais com naturalidade
+
+FLUXO OBRIGATÓRIO — uma etapa por vez:
+
+ETAPA 1: "Você já trabalha com vendas ou está começando agora?"
+
+ETAPA 2:
+- Se JÁ VENDE: "Entendi. Hoje, qual é o seu maior desafio? Crescer, fornecedores ou legalização?"
+- Se COMEÇANDO: "Perfeito. Você quer começar do zero ou já tentou vender antes?"
+
+ETAPA 3: "O que você está passando é muito comum. A maioria das pessoas começa assim, sem estrutura e sem saber por onde ir."
+
+ETAPA 4: "A JCV Academy foi criada justamente para ajudar pessoas a saírem dessa fase e construírem um negócio de verdade — com legalidade, estratégia e suporte."
+
+ETAPA 5: "Se fizer sentido pra você, posso te mostrar como funciona e te direcionar para falar com um especialista. Quer?"
+
+ETAPA 6 — quando lead aceitar ou demonstrar interesse: responda SOMENTE "GERAR_CHECKLIST"
+
+REGRAS:
+- Máximo 2 frases por mensagem
+- Uma pergunta por vez
+- Tom humano, caloroso, simples
+- Nunca dê preços — sempre direcione para o WhatsApp
+- Nunca mencione IA ou Claude
+- 1 emoji ocasional`;
+
+const msgsEl = document.getElementById('msgs');
+const input = document.getElementById('dm-input');
+const quickWrap = document.getElementById('quick-wrap');
+const statusBar = document.getElementById('status-bar');
+let history = [];
+let etapa = 1;
+
+function now() { return new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'}); }
+function timestamp() { return new Date().toLocaleString('pt-BR'); }
+
+async function logToSheets(role, message) {
+  try {
+    await fetch(SHEETS_URL, {
+      method: 'POST', mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ timestamp: timestamp(), session: SESSION_ID, role: role === 'user' ? 'Lead' : 'Bot', message })
+    });
+    statusBar.textContent = '● registrado no Google Sheets';
+    statusBar.className = '';
+  } catch(e) {
+    statusBar.textContent = '● erro ao registrar';
+    statusBar.className = 'err';
+  }
+}
+
+function captureLeadData(text) {
+  const t = text.toLowerCase();
+  if (!leadData.perfil) {
+    if (t.includes('já') || t.includes('vendo') || t.includes('trabalho') || t.includes('vend')) leadData.perfil = 'Já vende';
+    else if (t.includes('começ') || t.includes('zero') || t.includes('começando')) leadData.perfil = 'Está começando';
+    else if (t.includes('informal')) leadData.perfil = 'Vende mas está informal';
+  }
+  if (!leadData.desafio) {
+    if (t.includes('cresc')) leadData.desafio = 'Crescer o negócio';
+    else if (t.includes('fornec')) leadData.desafio = 'Dificuldade com fornecedores';
+    else if (t.includes('legal')) leadData.desafio = 'Precisa se legalizar';
+    else if (t.includes('zero')) leadData.desafio = 'Começar do zero';
+    else if (t.includes('tentei') || t.includes('tentou')) leadData.desafio = 'Já tentou vender antes';
+  }
+}
+
+function buildChecklist() {
+  return [
+    `*📋 Resumo do lead - JCV Academy*`,
+    `──────────────────`,
+    `✅ *Perfil:* ${leadData.perfil || 'Não informado'}`,
+    `✅ *Principal desafio:* ${leadData.desafio || 'Não informado'}`,
+    `──────────────────`,
+    `🕐 *Sessão:* ${SESSION_ID}`,
+    `📅 *Data:* ${timestamp()}`,
+    `──────────────────`,
+    `_Lead qualificado via JCV Academy Bot_`
+  ].join('\n');
+}
+
+function showChecklist() {
+  const checklist = buildChecklist();
+  const waUrl = `https://wa.me/5548920014985?text=${encodeURIComponent(checklist)}`;
+  const d = document.createElement('div');
+  d.className = 'msg bot';
+  d.innerHTML = `<div class="bubble">Perfeito! Vou te direcionar para um especialista que pode te explicar melhor e te ajudar no próximo passo.<br><br>É só clicar aqui e continuar pelo WhatsApp:<br>👇<a class="wa-btn" href="${waUrl}" target="_blank"><svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>Abrir WhatsApp com especialista</a></div><div class="msg-time">${now()}</div>`;
+  msgsEl.appendChild(d);
+  msgsEl.scrollTop = msgsEl.scrollHeight;
+  quickWrap.innerHTML = '';
+  logToSheets('bot', 'CHECKLIST GERADO — ' + checklist);
+}
+
+function setQuickBtns(btns) {
+  quickWrap.innerHTML = '';
+  btns.forEach(({label, value}) => {
+    const b = document.createElement('button');
+    b.className = 'qbtn'; b.textContent = label;
+    b.onclick = () => { quickWrap.innerHTML = ''; sendQ(value); };
+    quickWrap.appendChild(b);
+  });
+}
+
+function addMsg(role, text) {
+  const d = document.createElement('div');
+  d.className = 'msg ' + (role === 'user' ? 'user' : 'bot');
+  const fmt = text.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>').replace(/\n/g, '<br>');
+  d.innerHTML = `<div class="bubble">${fmt}</div><div class="msg-time">${now()}</div>`;
+  msgsEl.appendChild(d);
+  msgsEl.scrollTop = msgsEl.scrollHeight;
+}
+
+function showTyping() {
+  const d = document.createElement('div');
+  d.className = 'msg bot'; d.id = 'typing';
+  d.innerHTML = '<div class="typing-wrap"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
+  msgsEl.appendChild(d); msgsEl.scrollTop = msgsEl.scrollHeight;
+}
+
+function removeTyping() { const t = document.getElementById('typing'); if (t) t.remove(); }
+
+function updateQuickBtns() {
+  if (etapa === 2) {
+    setQuickBtns([
+      {label: 'Já vendo', value: 'Já trabalho com vendas'},
+      {label: 'Estou começando', value: 'Estou começando agora'},
+      {label: 'Vendo mas informal', value: 'Vendo mas estou na informalidade'}
+    ]);
+  } else if (etapa === 3) {
+    setQuickBtns([
+      {label: 'Crescer', value: 'Meu maior desafio é crescer'},
+      {label: 'Fornecedores', value: 'Tenho dificuldade com fornecedores'},
+      {label: 'Legalização', value: 'Preciso me legalizar'},
+      {label: 'Do zero', value: 'Quero começar do zero'},
+      {label: 'Já tentei antes', value: 'Já tentei vender antes'}
+    ]);
+  } else if (etapa >= 5) {
+    setQuickBtns([
+      {label: 'Sim, quero!', value: 'Sim, quero saber como funciona'},
+      {label: 'Tenho dúvidas', value: 'Tenho algumas dúvidas ainda'}
+    ]);
+  } else {
+    quickWrap.innerHTML = '';
+  }
+}
+
+async function ask(text) {
+  captureLeadData(text);
+  history.push({ role: 'user', content: text });
+  await logToSheets('user', text);
+  showTyping();
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, system: SYSTEM, messages: history })
+    });
+    const data = await res.json();
+    let reply = data.content.map(b => b.text || '').join('');
+    history.push({ role: 'assistant', content: reply });
+    removeTyping();
+    if (reply.includes('GERAR_CHECKLIST')) {
+      showChecklist();
+    } else {
+      addMsg('bot', reply);
+      await logToSheets('bot', reply);
+      etapa++;
+      updateQuickBtns();
+    }
+  } catch(e) {
+    removeTyping();
+    addMsg('bot', 'Ops! Fala com a equipe: wa.me/5548920014985 🙏');
+  }
+}
+
+function sendMsg() {
+  const text = input.value.trim();
+  if (!text) return;
+  addMsg('user', text); input.value = ''; ask(text);
+}
+
+function sendQ(text) { addMsg('user', text); ask(text); }
+
+(async () => {
+  const abertura = "Oi! Que bom ter você por aqui 😊 Você já trabalha com vendas ou está começando agora?";
+  await new Promise(r => setTimeout(r, 700));
+  addMsg('bot', abertura);
+  await logToSheets('bot', abertura);
+  history.push({ role: 'assistant', content: abertura });
+  updateQuickBtns();
+})();
+</script>
+</body>
+</html>
